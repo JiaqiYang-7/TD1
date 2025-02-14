@@ -1,0 +1,13 @@
+MAKE SURE U IMPORT LCD AND QEI LABS
+IN MAIN.CPP：
+move_forward and rotate_degrees control the square thing. 
+In move_forward："int target_ticks = 1.2*((distance / (M_PI*WHEEL_DIAMETER)) * 624);" this calculate the target pulses,
+u can change the ratio directly to change how long it goes. for example, if it goes short than 0.5m, just change the 1.2 into a large number.
+similar in rotate_degrees:
+"int pulse_target = 1.5*((arc_length / (M_PI * WHEEL_DIAMETER)) * 624);"
+just change the ratio, here is 1.5.
+To adjust speed:
+float left_pwm_val = (0.60 - kp_f * left_error_f);
+change the 0.6 number is the simplest way u can also try change value of "loat kp_f = 0.00005f;"
+this basically slow down when the error get samll, where error is the difference between target pulse and current pulse.
+the two function work at same way.
