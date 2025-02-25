@@ -58,29 +58,33 @@ void speed_control() {
     lcd.printf("Set L: %.2f", left_speed);
     lcd.locate(55,0);
     lcd.printf("Set R: %.2f", right_speed);
-    lcd.locate(0,10);
-    lcd.printf("L Pul: %i", encoder.get_left_ticks());
-    lcd.locate(55,10);
-    lcd.printf("R Pul: %i", encoder.get_right_ticks());
-    lcd.locate(0,20);
-    lcd.printf("R l: %0.2f", left_pwm.read());
-    lcd.locate(55,20);
-    // lcd.printf("R R: %0.2f", right_pwm.read());
-    lcd.printf("M: %d", left_mode.read());
-    lcd.locate(90,20);
     
+    // lcd.printf("L Pul: %i", encoder.get_left_ticks());
+    // lcd.locate(55,10);
+    // lcd.printf("R Pul: %i", encoder.get_right_ticks());
+    // lcd.locate(0,20);
+    // lcd.printf("R l: %0.2f", left_pwm.read());
+    // lcd.locate(55,20);
+    // // lcd.printf("R R: %0.2f", right_pwm.read());
+    // lcd.printf("M: %d", left_mode.read());
+    // lcd.locate(90,20);
+    lcd.locate(0,10);
+    lcd.printf("l v: %f", encoder.get_left_speed());
+    lcd.locate(40, 10);
+    lcd.printf("r v: %f", encoder.get_right_speed());
+
     }
 
 void move_forward(float distance) {
     int32_t initial_left = encoder.get_left_ticks();
     int32_t initial_right = encoder.get_right_ticks();
-    int target_ticks = 1.2*((distance / (M_PI*WHEEL_DIAMETER)) * 624);
+    int target_ticks = 1.1*((distance / (M_PI*WHEEL_DIAMETER)) * 624);
     int target_left = initial_left + target_ticks;
     int target_right = initial_right + target_ticks;
     left_mode.write(0);
     right_mode.write(0);
     left_dir.write(1);
-    right_dir.write(1);
+    right_dir.write(1);//right.dir  = 1;
 
     while(1) {
         int current_l = encoder.get_left_ticks();
@@ -103,7 +107,7 @@ void move_forward(float distance) {
         }
 
         if (current_r < target_right){
-            float right_pwm_val = (0.60 - kp_f * right_error_f);
+            float right_pwm_val = (0.5 - kp_f * right_error_f);
             right_pwm.write(right_pwm_val);
         } else {
             right_pwm.write(1);
@@ -123,7 +127,7 @@ void rotate_degrees(float degrees) {
     float arc_length = radians * (WHEEL_BASE / 2.0f);
    
     // calc pulse target
-    int pulse_target = 1.5*((arc_length / (M_PI * WHEEL_DIAMETER)) * 624);
+    int pulse_target = 1.3*((arc_length / (M_PI * WHEEL_DIAMETER)) * 624);
     // lcd.printf("target:%i", pulse_target);
     int32_t initial_left = encoder.get_left_ticks();
     int32_t initial_right = encoder.get_right_ticks();
@@ -162,8 +166,8 @@ void rotate_degrees(float degrees) {
         float right_error = abs(right_target - current_right);
         float kp = 0.0003f;
         // adjusting pwm
-        float left_pwm_val = (0.7 - kp * left_error);
-        float right_pwm_val = (0.7 - kp * right_error);
+        float left_pwm_val = (0.65 - kp * left_error);
+        float right_pwm_val = (0.65 - kp * right_error);
         left_pwm.write(left_pwm_val);
         right_pwm.write(right_pwm_val);
 
@@ -212,12 +216,12 @@ int main() {
         rotate_degrees(90);
     }
     // turn 180
-    rotate_degrees(180);
+    rotate_degrees(130);
 
     // inverse square
     for (int i = 0; i < 4; i++) {
         move_forward(0.5);
-        rotate_degrees(-90);
+        rotate_degrees(-110);
     }
 
     while(1){}  // stop

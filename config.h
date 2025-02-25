@@ -10,7 +10,7 @@
 #define LEFT_ENC_B      PC_0
 #define RIGHT_ENC_A     PA_2
 #define RIGHT_ENC_B     PA_3
-const int CPR = 255;                   // encoder CPR
+                 // encoder CPR
 
 // Motion parameters (requires calibration based on actual testing)
 #define PWM_FREQ        200000      // PWM frequency (Hz)
