@@ -69,9 +69,9 @@ void speed_control() {
     // lcd.printf("M: %d", left_mode.read());
     // lcd.locate(90,20);
     lcd.locate(0,10);
-    lcd.printf("l v: %f", encoder.get_left_speed());
+    lcd.printf("l v: %.3f", encoder.get_left_speed());
     lcd.locate(40, 10);
-    lcd.printf("r v: %f", encoder.get_right_speed());
+    lcd.printf("r v: %.3f", encoder.get_right_speed());
 
     }
 
@@ -90,6 +90,7 @@ void move_forward(float distance) {
         int current_l = encoder.get_left_ticks();
         int current_r = encoder.get_right_ticks();
         lcd.locate(0, 0);
+
         lcd.printf("target:%i", target_ticks);
         lcd.locate(0,10);
         lcd.printf("L Pul: %i",current_l);
@@ -228,3 +229,49 @@ int main() {
 }
 
 
+
+// #include "mbed.h"
+// #include "C12832.h"  
+
+// C12832 lcd(D11,D13,D12,D7,D10);
+// const int SENSOR_COUNT = 6;
+// AnalogIn sensors[SENSOR_COUNT] = {A5, A4, A3, A2, PC_3, PC_2};
+
+// // display param
+// const int CIRCLE_RADIUS = 8;         
+// const int CIRCLE_SPACING = 21;       
+// const int START_X = 10;              // first circle x location
+// const int CENTER_Y = 16;             // circle center location
+
+// const float BLACK_THRESHOLD = 0.3f;
+// const float WHITE_THRESHOLD = 2.0f;
+
+// void draw_sensor_status() {   
+//     lcd.cls();
+//     for(int i=0; i<SENSOR_COUNT; i++) {
+//         // palce circle center location
+//         int x = START_X + i*CIRCLE_SPACING;
+        
+//         // read sensor value
+//         float voltage = sensors[i].read()*5;
+        
+//         // plot circle
+//         if(voltage < WHITE_THRESHOLD && voltage > BLACK_THRESHOLD) {
+//             lcd.fillcircle(x, CENTER_Y, CIRCLE_RADIUS, 1); // black circle
+//         } else if(voltage > WHITE_THRESHOLD) {
+//             lcd.circle(x, CENTER_Y, CIRCLE_RADIUS, 1);     // white circle
+//         } else {
+//             lcd.rect(x-CIRCLE_RADIUS, CENTER_Y-CIRCLE_RADIUS,
+//                      x+CIRCLE_RADIUS, CENTER_Y+CIRCLE_RADIUS, 1); // gray square
+//         }
+//     }
+//     lcd.copy_to_lcd(); // refresh display
+// }
+
+// int main() {
+//     lcd.cls();
+//     while(1) {
+//         draw_sensor_status();
+//         wait(0.1); 
+//     }
+// }
