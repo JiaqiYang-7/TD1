@@ -3,6 +3,7 @@
 #include "config.h"
 #include "C12832.h"
 #include "potentiometer.h"
+#include "motor_controller.h"
 
 C12832 lcd(D11,D13,D12,D7,D10);
 PwmOut right_pwm(PC_8);     // Left motor PWM
@@ -14,20 +15,17 @@ InterruptIn joy_fire(D4);
 DigitalOut right_dir(PB_1);
 DigitalOut left_dir(PB_14);
 DigitalIn joy_up(A2);
+
+const int SENSOR_COUNT = 6;
+AnalogIn sensors[SENSOR_COUNT] = {A5, A4, A3, A2, PC_3, PB_1};
+
 EncoderSystem encoder;
+MotorController motor(PC_6, PC_8, PB_14, PB_1);
 
 SamplingPotentiometer leftPotentiometert(A0, 1.0, 10);
 SamplingPotentiometer rightPotentiometer(A1, 1.0, 10);
 
 volatile int modes = 0;
-// void update_lcd() {
-//     lcd.locate(10, 0);
-//     lcd.printf("Left pulses: %i\n", encoder.get_left_ticks());
-//     lcd.locate(10, 20);
-//     lcd.printf("left speed: %f\n", left_speed);
-//     lcd.locate(10, 10);
-//     lcd.printf("Right pulses: %i\n", encoder.get_right_ticks());
-// }
 void fireISR()  //toggle motor mode                        //ISR executed each time fire is pressed. Used to advance program state.
     {
     modes = !modes;
@@ -36,44 +34,38 @@ void fireISR()  //toggle motor mode                        //ISR executed each t
     lcd.cls();
     }
 void speed_control() {
-    volatile float left_speed;
-    volatile float right_speed;
-    if (modes == 0){
-        left_speed = 1 - leftPotentiometert.getCurrentSampleVolts();
-        right_speed = 1 - rightPotentiometer.getCurrentSampleVolts();
-    }
-    if (modes ==  1) {
-        left_speed = leftPotentiometert.getCurrentSampleVolts();
-        right_speed = rightPotentiometer.getCurrentSampleVolts();
-    }
-    if (modes == 0){
-        lcd.printf("M: Uni");
-    }
-    if (modes ==  1) {
-        lcd.printf("M: Bi");
-    }
-    right_pwm.write(right_speed);
-    left_pwm.write(left_speed);
+    motor.update();
     lcd.locate(0,0);
-    lcd.printf("Set L: %.2f", left_speed);
-    lcd.locate(55,0);
-    lcd.printf("Set R: %.2f", right_speed);
-    
-    // lcd.printf("L Pul: %i", encoder.get_left_ticks());
-    // lcd.locate(55,10);
-    // lcd.printf("R Pul: %i", encoder.get_right_ticks());
-    // lcd.locate(0,20);
-    // lcd.printf("R l: %0.2f", left_pwm.read());
-    // lcd.locate(55,20);
-    // // lcd.printf("R R: %0.2f", right_pwm.read());
-    // lcd.printf("M: %d", left_mode.read());
-    // lcd.locate(90,20);
-    lcd.locate(0,10);
-    lcd.printf("l v: %.3f", encoder.get_left_speed());
-    lcd.locate(40, 10);
-    lcd.printf("r v: %.3f", encoder.get_right_speed());
+    lcd.printf("L:%.2f R:%.2f", 
+                encoder.get_left_speed(),
+                encoder.get_right_speed());
+ 
+}
+    // if (modes == 0){
+    //     left_speed = 1 - leftPotentiometert.getCurrentSampleVolts();
+    //     right_speed = 1 - rightPotentiometer.getCurrentSampleVolts();
+    // }
+    // if (modes ==  1) {
+    //     left_speed = leftPotentiometert.getCurrentSampleVolts();
+    //     right_speed = rightPotentiometer.getCurrentSampleVolts();
+    // }
+    // if (modes == 0){
+    //     lcd.printf("M: Uni");
+    // }
+    // if (modes ==  1) {
+    //     lcd.printf("M: Bi");
+    // }
+    // right_pwm.write(right_speed);
+    // left_pwm.write(left_speed);
+    // lcd.locate(0,0);
+    // lcd.printf("Set L: %.2f", left_speed);
+    // lcd.locate(55,0);
+    // lcd.printf("Set R: %.2f", right_speed);
+    // lcd.locate(0,10);
+    // lcd.printf("l v: %.3f", encoder.get_left_speed());
+    // lcd.locate(40, 10);
+    // lcd.printf("r v: %.3f", encoder.get_right_speed());
 
-    }
 
 void move_forward(float distance) {
     int32_t initial_left = encoder.get_left_ticks();
@@ -151,18 +143,6 @@ void rotate_degrees(float degrees) {
     while (true) {
         int32_t current_left = encoder.get_left_ticks();
         int32_t current_right = encoder.get_right_ticks();
-        // lcd.locate(0, 0);
-        // lcd.printf("l tar: %i", left_target);
-        // lcd.locate(0, 10);
-        // lcd.printf("r tar: %i", right_target);
-        // lcd.locate(60, 0);
-        // lcd.printf("l du: %f", left_pwm.read());
-        // lcd.locate(60, 10);
-        // lcd.printf("r du: %f", right_pwm.read());
-        // lcd.locate(0, 20);
-        // lcd.printf("l cur: %i", current_left);
-        // lcd.locate(60, 20);
-        // lcd.printf("r cur: %i", current_right);
         float left_error = abs(left_target - current_left);
         float right_error = abs(right_target - current_right);
         float kp = 0.0003f;
@@ -171,8 +151,6 @@ void rotate_degrees(float degrees) {
         float right_pwm_val = (0.65 - kp * right_error);
         left_pwm.write(left_pwm_val);
         right_pwm.write(right_pwm_val);
-
-
         bool left_done = (degrees > 0) ? (current_left >= left_target - 5) 
                                       : (current_left <= left_target + 5);
         bool right_done = (degrees > 0) ? (current_right <= right_target + 5)
@@ -200,6 +178,8 @@ int main() {
     setup_motors();
     encoder.init();
     joy_fire.rise(&fireISR);
+    motor.setLeftTargetSpeed(0.5f); // speed m/s
+    motor.setRightTargetSpeed(0.6f);
     // speed_control();
     lcd.cls();
     while (1) {
@@ -234,8 +214,7 @@ int main() {
 // #include "C12832.h"  
 
 // C12832 lcd(D11,D13,D12,D7,D10);
-// const int SENSOR_COUNT = 6;
-// AnalogIn sensors[SENSOR_COUNT] = {A5, A4, A3, A2, PC_3, PC_2};
+
 
 // // display param
 // const int CIRCLE_RADIUS = 8;         

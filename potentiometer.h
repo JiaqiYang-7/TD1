@@ -51,4 +51,4 @@ class SamplingPotentiometer : public Potentiometer { //create a derived class ba
     //"this" referes to the current specific SamplingPotentiometer object being created
     //'this' pointer used to specify the object's data member
     };
-    };
+};

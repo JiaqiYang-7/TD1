@@ -11,3 +11,5 @@ float left_pwm_val = (0.60 - kp_f * left_error_f);
 change the 0.6 number is the simplest way u can also try change value of "loat kp_f = 0.00005f;"
 this basically slow down when the error get samll, where error is the difference between target pulse and current pulse.
 the two function work at same way.
+
+PID lab: https://os.mbed.com/users/aberk/code/PID/docs/tip/classPID.html
