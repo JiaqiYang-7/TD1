@@ -1,6 +1,6 @@
 #include "motor_controller.h"
 
-extern EncoderSystem encoder;
+EncoderSystem _encoder;
 
 // PID构造函数参数修正
 MotorController::MotorController(PinName left_pwm, PinName right_pwm,
@@ -10,15 +10,15 @@ MotorController::MotorController(PinName left_pwm, PinName right_pwm,
       _left_dir(left_dir),
       _right_dir(right_dir),
       // PID(Kc, taul, taulO, interval)
-      _left_pid(0.8f, 0.05f, 0.01f, PID_INTERVAL),
-      _right_pid(0.8f, 0.05f, 0.01f, PID_INTERVAL),
-      _encoder(encoder)
+      _left_pid(0.5f, 0.05f, 0.01f, PID_INTERVAL),
+      _right_pid(0.5f, 0.05f, 0.01f, PID_INTERVAL),
+      _encoder(_encoder)
 {
-    // 初始化硬件
+    // // 初始化硬件
     _left_pwm.period(1.0f/PWM_FREQ);
     _right_pwm.period(1.0f/PWM_FREQ);
-    _left_pwm = 0.0f;
-    _right_pwm = 0.0f;
+    _left_pwm = 0.5f;
+    _right_pwm = 0.5f;
     _left_dir = 1;
     _right_dir = 1;
 
@@ -41,16 +41,18 @@ void MotorController::setRightTargetSpeed(float speed) {
     _right_pid.setSetPoint(speed);
 }
 
+
 void MotorController::update() {
-    // 设置过程值并计算
     _left_pid.setProcessValue(_encoder.get_left_speed());
     _right_pid.setProcessValue(_encoder.get_right_speed());
     
-    // PID计算
+    // PID calc
     _left_pwm = _left_pid.compute();
     _right_pwm = _right_pid.compute();
+    // _left_pwm = 0.5f;
+    // _right_pwm = 0.5f;
     
-//     // 应用输出
-//     _left_pwm = _left_pid.getOutput();
-//     _right_pwm = _right_pid.getOutput();
+}
+float MotorController::test(){
+    return _left_pwm;
 }

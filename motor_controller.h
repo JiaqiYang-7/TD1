@@ -14,7 +14,7 @@ public:
     void setLeftTargetSpeed(float speed);
     void setRightTargetSpeed(float speed);
     void update();
-    
+    float test();
     float getLeftSpeed() const;
     float getRightSpeed() const;
 
@@ -29,3 +29,4 @@ private:
     EncoderSystem& _encoder;
 
 };
+

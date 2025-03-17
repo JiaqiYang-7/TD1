@@ -5,20 +5,34 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif
-// encoder pins
-#define LEFT_ENC_A      PC_1
-#define LEFT_ENC_B      PC_0
-#define RIGHT_ENC_A     PA_2
-#define RIGHT_ENC_B     PA_3
-                 // encoder CPR
-
-// Motion parameters (requires calibration based on actual testing)
+// // encoder pins
+// #define LEFT_ENC_A      PC_1
+// #define LEFT_ENC_B      PC_0
+// #define RIGHT_ENC_A     PA_2
+// #define RIGHT_ENC_B     PA_3
 #define PWM_FREQ        200000      // PWM frequency (Hz)
-#define STRAIGHT_TIME   2.2f    // Time to move 0.5m straight (s)
-#define TURN_90_TIME    0.8f    // Time for 90° turn (s)
-#define TURN_180_TIME   1.6f    // Time for 180° turn (s)
+namespace Config {
+    //sensor
+    const int SENSOR_COUNT = 6;
+    const float BLACK_THRESHOLD = 0.3f;
+    const float WHITE_THRESHOLD = 2.0f;
+    // Motion parameters (requires calibration based on actual testing)
 
-// paras for movement control
-const float WHEEL_DIAMETER = 0.08f;   // (m)
-const float WHEEL_BASE = 0.185f;        // wheel distance(m)  
-const float GEAR_RATIO = 18.75;             
+
+    // paras for movement control
+    const float WHEEL_DIAMETER = 0.08f;   // (m)
+    const float WHEEL_BASE = 0.185f;        // wheel distance(m)  
+    const float GEAR_RATIO = 18.75;             
+    const float MAX_SPEED = 0.8f; 
+    // PID para
+    const float PID_INTERVAL = 0.05f;
+    const float SAFETY_TIMEOUT = 2.0f;
+    const float LINE_KP = 0.35f;
+    const float LINE_KI = 0.01f;
+    const float LINE_KD = 0.05f;
+
+
+    const int LINE_BREAK_TOLERANCE = 30;  // 允许的连续断线检测次数（6mm断线对应约30个采样点）  
+    const float SLOPE_COMPENSATION = 1.15f; // 坡度补偿系数
+    
+}

@@ -16,8 +16,8 @@ void EncoderSystem::calculate_velocity() {
     
     float dt = speed_timer.read();
     
-    left_velocity = ((curr_left - prev_left) * WHEEL_DIAMETER * M_PI) / (1024 * dt);
-    right_velocity = ((curr_right - prev_right) * WHEEL_DIAMETER * M_PI) / (1024 * dt);
+    left_velocity = ((curr_left - prev_left) * 0.08 * M_PI) / (1024 * dt);
+    right_velocity = ((curr_right - prev_right) * 0.08 * M_PI) / (1024 * dt);
     
     prev_left = curr_left;
     prev_right = curr_right;
